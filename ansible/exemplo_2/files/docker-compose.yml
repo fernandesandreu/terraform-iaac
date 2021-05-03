@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  impacta_app:
+    image: "impacta_app:1.0"
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS=redis
+  redis:
+    image: "redis:alpine"

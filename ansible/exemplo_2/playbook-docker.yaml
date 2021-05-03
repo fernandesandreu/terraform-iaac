@@ -1,0 +1,46 @@
+- hosts: local
+  gather_facts: False
+  debugger: on_skipped
+
+  tasks:
+  - name: Instalando docker
+    apt:
+      name: docker.io
+      update_cache: yes
+      state: present
+  
+  - name: Instalando docker-compose
+    apt:
+      name: docker-compose
+      update_cache: yes
+      state: present
+
+  - name: Habilitar docker no boot
+    service:
+        name: docker
+        enabled: yes
+        state: started
+
+  - name: Copiando artefatos para o servidor
+    copy:
+       src: "{{ item }}"
+       dest: "/root/{{ item }}"
+       owner: root
+       group: root
+    with_items:
+      - docker-compose.yml
+      - Dockerfile
+      - app.py
+      - requirements.txt 
+
+  - name: Construindo a imagem
+    command: docker build -t impacta_app:1.0 .
+    args:
+       chdir: /root/
+    register: docker_build
+  
+  - name: Executando o docker-compose
+    command: docker-compose up -d
+    args:
+       chdir: /root/
+    register: docker_compose_up
